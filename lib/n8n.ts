@@ -15,6 +15,17 @@ const getApiKey = () => {
   return key
 }
 
+/** Parse response body as JSON; avoids "Unexpected end of JSON input" when body is empty or invalid. */
+async function parseJsonResponse<T>(res: Response): Promise<T> {
+  const text = await res.text()
+  if (!text.trim()) throw new Error("Empty response from server")
+  try {
+    return JSON.parse(text) as T
+  } catch {
+    throw new Error(`Invalid JSON response: ${text.slice(0, 80)}...`)
+  }
+}
+
 export type TriggerWorkflowOptions = {
   workflowId: string
   /** Payload to send to the workflow (e.g. image base64, text). */
@@ -49,7 +60,7 @@ export async function triggerViaWebhook(formData: FormData): Promise<TriggerWork
     throw new Error(`n8n webhook failed (${res.status}): ${text}`)
   }
 
-  const raw = (await res.json()) as Record<string, unknown>
+  const raw = await parseJsonResponse<Record<string, unknown>>(res)
   const payload = parseWebhookResponse(raw)
 
   const executionId = `${WEBHOOK_EXECUTION_PREFIX}${crypto.randomUUID()}`
@@ -109,7 +120,7 @@ export async function triggerWorkflow({
     const text = await res.text()
     throw new Error(`n8n trigger failed (${res.status}): ${text}`)
   }
-  const json = (await res.json()) as { data?: { executionId?: string; id?: string }; executionId?: string; id?: string }
+  const json = await parseJsonResponse<{ data?: { executionId?: string; id?: string }; executionId?: string; id?: string }>(res)
   const executionId = json.data?.executionId ?? json.data?.id ?? json.executionId ?? json.id
   if (!executionId) throw new Error("n8n response missing execution ID")
   return {
@@ -157,7 +168,7 @@ export async function getExecution(
     const text = await res.text()
     throw new Error(`n8n getExecution failed (${res.status}): ${text}`)
   }
-  return res.json() as Promise<GetExecutionResult>
+  return parseJsonResponse<GetExecutionResult>(res)
 }
 
 /** Shape we expect from the "process doctor's note" workflow output (last node). */

@@ -16,7 +16,15 @@ export function ScanButton() {
       const formData = new FormData()
       formData.append("image", file)
       const res = await fetch("/api/scan", { method: "POST", body: formData })
-      const json = (await res.json()) as { executionId?: string; error?: string }
+      const text = await res.text()
+      let json: { executionId?: string; error?: string } = {}
+      if (text.trim()) {
+        try {
+          json = JSON.parse(text) as { executionId?: string; error?: string }
+        } catch {
+          throw new Error(res.ok ? "Invalid response from server" : `Scan failed (${res.status})`)
+        }
+      }
       if (!res.ok) throw new Error(json.error ?? "Scan failed")
       const executionId = json.executionId ?? "demo"
       router.push(`/results?executionId=${encodeURIComponent(executionId)}`)
