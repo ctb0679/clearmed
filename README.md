@@ -1,10 +1,10 @@
-# ClearMed
+# ClearMED
 
-ClearMed is an AI assistant that turns your doctor’s notes into plain language. You upload a photo or PDF of a note, and it gives you a simple checklist, a short summary, and—if you like—an audio version you can listen to. You can also chat with it and ask questions, optionally about a scan you just did.
+ClearMED is an AI assistant that turns your doctor’s notes into plain language. You upload a photo or PDF of a note, and it gives you a simple checklist, a short summary, and—if you like—an audio version you can listen to. You can also chat with it and ask questions, optionally about a scan you just did.
 
 ## What it does
 
-- *Scan* — Snap or upload a doctor’s note. ClearMed sends it through an n8n workflow that pulls out diagnoses, medications, and things to watch for, then gives you a patient-friendly checklist and summary.
+- *Scan* — Snap or upload a doctor’s note. ClearMED sends it through an n8n workflow that pulls out diagnoses, MEDications, and things to watch for, then gives you a patient-friendly checklist and summary.
 - *Results* — See your checklist, summary, and whether everything looks consistent (“Verified Safe” or “Needs Review”). You can play an audio summary too.
 - *Chat* — Ask questions in your own words. If you’ve just run a scan, you can ask about that report and get answers in context.
 
