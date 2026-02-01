@@ -1,41 +1,32 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ClearMed
 
-## Pipeline: Scan → n8n → Results
+ClearMed is an AI assistant that turns your doctor’s notes into plain language. You upload a photo or PDF of a note, and it gives you a simple checklist, a short summary, and—if you like—an audio version you can listen to. You can also chat with it and ask questions, optionally about a scan you just did.
 
-- **Scan** triggers the n8n “process doctor’s note” workflow; **Results** shows its output (checklist, summary, optional audio). Configure `N8N_BASE_URL`, `N8N_API_KEY`, `N8N_WORKFLOW_ID_SCAN` in `.env.local` (see [.env.example](.env.example)); without them, the app uses demo data.
-- **GitHub repo:** [docs/SETUP.md](docs/SETUP.md). **n8n workflows:** Put exported JSONs in [n8n/](n8n/) — see [n8n/README.md](n8n/README.md).
+## What it does
 
-## Getting Started
+- *Scan* — Snap or upload a doctor’s note. ClearMed sends it through an n8n workflow that pulls out diagnoses, medications, and things to watch for, then gives you a patient-friendly checklist and summary.
+- *Results* — See your checklist, summary, and whether everything looks consistent (“Verified Safe” or “Needs Review”). You can play an audio summary too.
+- *Chat* — Ask questions in your own words. If you’ve just run a scan, you can ask about that report and get answers in context.
 
-First, run the development server:
+## What we built it with
 
-```bash
+| Area | Tool |
+|------|------|
+| App | [Next.js](https://nextjs.org) (App Router), [React](https://react.dev) |
+| Styling | [Tailwind CSS](https://tailwindcss.com) |
+| Automation | [n8n](https://n8n.io) — workflow handles OCR, drafting, a safety check, and optional TTS |
+| AI | OpenAI (in n8n and in the chat) |
+| Audio | ElevenLabs (in n8n, optional) |
+
+More on the workflow and how to set it up: [n8n/README.md](n8n/README.md).
+
+## Get it running
+
+bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Then open [http://localhost:3000](http://localhost:3000).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Copy [.env.example](.env.example) to .env.local and fill in your n8n webhook URL (or base URL + API key + workflow ID) so scans can hit your workflow.
