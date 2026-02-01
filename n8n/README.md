@@ -52,6 +52,32 @@ The app also supports **raw medical output** `{ Diagnosis, Medications, Warning 
 
 ---
 
+## Troubleshooting: "Empty response from server"
+
+If the app shows **"Empty response from server"** or **"The scan service returned no data"**, the webhook is being called but n8n is not returning JSON. Common causes:
+
+1. **Workflow errors before Respond to Webhook**  
+   The response is only sent when the **Respond to Webhook** node runs. If any node before it fails, the workflow errors and the caller may get an empty or timeout response.
+
+   **Check:** In n8n, open **Executions** and run a test from the app. Look for failed executions and which node failed:
+   - **Code in JavaScript1** – "No image found" → ensure the app sends multipart with field name `image`.
+   - **Basic LLM Chain (Gemini)** – API key, rate limit, or image too large; ensure Gemini credentials are set in n8n cloud.
+   - **Code in JavaScript** – "Could not find medical text" → LLM output shape changed; adjust the code to read from the correct path.
+   - **HTTP Request (ElevenLabs)** – 4xx/5xx or timeout → check ElevenLabs API key in n8n (Header Auth) and that the voice ID is valid. If ElevenLabs fails, the workflow errors and Respond to Webhook never runs.
+
+2. **Webhook timeout**  
+   If the workflow takes too long (LLM + ElevenLabs), n8n or the caller may timeout before **Respond to Webhook** runs. Consider shortening the chain or using a faster voice/model.
+
+3. **Respond to Webhook config**  
+   Ensure **Respond to Webhook** has:
+   - **Respond With:** JSON  
+   - **Response Body:** `={{ $json }}` (so it sends the output of **Prepare Response**, which is `{ summary, checklist, audio_base64 }`).
+
+4. **Vercel vs local**  
+   From Vercel, the request goes: **Vercel serverless → n8n webhook**. The workflow runs on n8n’s servers. If it works locally but not on Vercel, the workflow itself is the same; check n8n execution logs for runs triggered from the deployed app (same webhook URL, so executions will appear in n8n).
+
+---
+
 ## Summary
 
 | Goal | What to do |

@@ -55,12 +55,23 @@ export async function triggerViaWebhook(formData: FormData): Promise<TriggerWork
     method: "POST",
     body: formData,
   })
+  const text = await res.text()
   if (!res.ok) {
-    const text = await res.text()
-    throw new Error(`n8n webhook failed (${res.status}): ${text}`)
+    throw new Error(`n8n webhook failed (${res.status}): ${text || res.statusText}`)
   }
 
-  const raw = await parseJsonResponse<Record<string, unknown>>(res)
+  if (!text.trim()) {
+    throw new Error(
+      "The scan service returned no data. In n8n, check Executions to see if the workflow failed before 'Respond to Webhook' (e.g. ElevenLabs or LLM step). See n8n/README.md for troubleshooting."
+    )
+  }
+
+  let raw: Record<string, unknown>
+  try {
+    raw = JSON.parse(text) as Record<string, unknown>
+  } catch {
+    throw new Error(`Invalid JSON from scan service: ${text.slice(0, 80)}...`)
+  }
   const payload = parseWebhookResponse(raw)
 
   const executionId = `${WEBHOOK_EXECUTION_PREFIX}${crypto.randomUUID()}`
