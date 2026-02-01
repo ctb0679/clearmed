@@ -6,8 +6,10 @@ export interface StoredUser {
   name?: string
 }
 
-// In-memory user store for email/password. Replace with a database in production.
-const users = new Map<string, StoredUser>()
+// In-memory user store for email/password. Use globalThis so it survives HMR and is shared.
+const globalForAuth = globalThis as unknown as { authStore?: Map<string, StoredUser> }
+const users = globalForAuth.authStore ?? new Map<string, StoredUser>()
+if (!globalForAuth.authStore) globalForAuth.authStore = users
 
 export async function createUser(
   email: string,

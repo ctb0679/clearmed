@@ -1,11 +1,23 @@
 "use client"
 
+import { useEffect } from "react"
+import { usePathname, useSearchParams, useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { ScanButton } from "@/components/scan-button"
 import { AuthGate } from "@/components/auth-gate"
 
 export function HomeContent() {
   const { status } = useSession()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const router = useRouter()
+
+  // Prevent callbackUrl nesting: strip query when we're on the sign-in page
+  useEffect(() => {
+    if (pathname === "/" && searchParams.has("callbackUrl")) {
+      router.replace("/", { scroll: false })
+    }
+  }, [pathname, searchParams, router])
 
   if (status === "loading") {
     return (

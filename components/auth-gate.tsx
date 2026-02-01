@@ -44,7 +44,7 @@ export function AuthGate() {
         setError("Invalid email or password.")
         return
       }
-      if (res?.ok) window.location.reload()
+      if (res?.ok) window.location.href = "/"
     } finally {
       setLoading(false)
     }
@@ -78,7 +78,7 @@ export function AuthGate() {
         password,
         redirect: false,
       })
-      if (signInRes?.ok) window.location.reload()
+      if (signInRes?.ok) window.location.href = "/"
       else setError("Account created. Please sign in.")
     } finally {
       setLoading(false)

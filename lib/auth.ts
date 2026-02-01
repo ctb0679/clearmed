@@ -46,7 +46,8 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   session: { strategy: "jwt", maxAge: 30 * 24 * 60 * 60 },
-  pages: { signIn: "/" },
+  // Don't set pages.signIn so GET /api/auth/signin returns 200 with CSRF token.
+  // Our sign-in form lives on / (HomeContent + AuthGate); credentials POST works when client can GET signin first.
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
@@ -61,6 +62,12 @@ export const authOptions: NextAuthOptions = {
         session.user.name = token.name ?? session.user.name
       }
       return session
+    },
+    redirect({ url, baseUrl }) {
+      // Prevent callbackUrl nesting: only allow same-origin paths, strip query
+      if (url.startsWith("/")) return `${baseUrl}${url.split("?")[0]}`
+      if (new URL(url).origin === baseUrl) return `${baseUrl}${new URL(url).pathname}`
+      return baseUrl
     },
   },
   secret: process.env.AUTH_SECRET,
